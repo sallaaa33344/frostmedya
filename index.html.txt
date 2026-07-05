@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frost Medya — Sosyal Medya Büyüme Mağazası</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#050810;
+    --bg-2:#0a1120;
+    --card:#0d1626;
+    --card-2:#0f1a2e;
+    --border:#1c2c45;
+    --border-hi:#2e4566;
+    --ice:#7ee9ff;
+    --ice-2:#a8f2ff;
+    --frost-blue:#4a9eff;
+    --deep-blue:#3355ff;
+    --text:#eaf4fb;
+    --text-muted:#8ea3bd;
+    --success:#7effc7;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  ::selection{ background:rgba(126,233,255,0.25); color:#fff; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', -apple-system, sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* ---------- Frost background: aurora + drifting ice light + frost particles ---------- */
+  .flow-bg{
+    position:fixed; inset:0; z-index:0;
+    background:
+      radial-gradient(ellipse 60% 40% at 15% 0%, rgba(74,158,255,0.16), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 100% 20%, rgba(126,233,255,0.14), transparent 60%),
+      linear-gradient(180deg, #050810 0%, #060a14 100%);
+    overflow:hidden;
+  }
+  .blob{
+    position:absolute; border-radius:50%; filter:blur(100px); opacity:0.5; mix-blend-mode:screen;
+  }
+  .blob1{ width:48vw; height:48vw; max-width:620px; max-height:620px; background:var(--ice); top:-18%; left:-12%; animation:drift1 28s ease-in-out infinite; }
+  .blob2{ width:42vw; height:42vw; max-width:560px; max-height:560px; background:var(--deep-blue); bottom:-14%; right:-10%; animation:drift2 32s ease-in-out infinite; }
+  .blob3{ width:30vw; height:30vw; max-width:420px; max-height:420px; background:var(--frost-blue); top:38%; left:38%; opacity:0.3; animation:drift3 24s ease-in-out infinite; }
+  @keyframes drift1{ 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(12vw,9vh) scale(1.15);} }
+  @keyframes drift2{ 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(-10vw,-7vh) scale(1.12);} }
+  @keyframes drift3{ 0%,100%{transform:translate(-8vw,4vh) scale(0.9);} 50%{transform:translate(9vw,-9vh) scale(1.2);} }
+  @media (prefers-reduced-motion: reduce){ .blob, .flake{ animation:none !important; } }
+
+  /* frost particles (soft drifting dots, like distant snow) */
+  .particles{ position:fixed; inset:0; z-index:1; pointer-events:none; overflow:hidden; }
+  .flake{
+    position:absolute; top:-5%; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,0.9), rgba(126,233,255,0.1) 70%);
+    animation:fall linear infinite;
+  }
+  @keyframes fall{
+    0%{ transform:translateY(-10vh) translateX(0); opacity:0; }
+    10%{ opacity:0.8; }
+    90%{ opacity:0.6; }
+    100%{ transform:translateY(110vh) translateX(30px); opacity:0; }
+  }
+
+  .content{ position:relative; z-index:2; }
+
+  /* ---------- Header ---------- */
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 6vw;
+    position:sticky; top:0; z-index:20;
+    backdrop-filter:blur(16px) saturate(140%);
+    background:rgba(5,8,16,0.6);
+    border-bottom:1px solid var(--border);
+  }
+  .logo{
+    font-family:'Space Grotesk','Inter',sans-serif;
+    font-weight:700; font-size:21px; letter-spacing:-0.02em;
+    display:flex; align-items:center; gap:10px;
+  }
+  .logo-mark{
+    width:32px; height:32px; border-radius:9px;
+    background:linear-gradient(155deg, rgba(126,233,255,0.18), rgba(74,158,255,0.05));
+    border:1px solid var(--border-hi);
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px;
+    box-shadow:0 0 18px rgba(126,233,255,0.25) inset;
+  }
+  .logo span{
+    background:linear-gradient(95deg, var(--ice-2), var(--frost-blue));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  nav{ display:flex; align-items:center; gap:30px; }
+  nav a{ color:var(--text-muted); text-decoration:none; font-size:14px; font-weight:500; transition:color 0.2s; }
+  nav a:hover{ color:var(--text); }
+  .cart-btn{
+    position:relative;
+    background:var(--card); border:1px solid var(--border); color:var(--text);
+    padding:10px 18px; border-radius:100px; font-size:14px; font-weight:600; cursor:pointer;
+    display:flex; align-items:center; gap:8px;
+    transition:border-color 0.2s, box-shadow 0.2s;
+  }
+  .cart-btn:hover{ border-color:var(--ice); box-shadow:0 0 18px rgba(126,233,255,0.25); }
+  .cart-count{
+    background:var(--ice); color:#04121c; font-size:11px; font-weight:800;
+    min-width:18px; height:18px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; padding:0 4px;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{ padding:120px 6vw 90px; text-align:center; max-width:940px; margin:0 auto; position:relative; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:13px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--ice);
+    border:1px solid rgba(126,233,255,0.3);
+    padding:6px 14px; border-radius:100px;
+    background:rgba(126,233,255,0.05);
+    margin-bottom:30px;
+  }
+  h1{
+    font-family:'Space Grotesk','Inter',sans-serif;
+    font-size:clamp(38px, 6.4vw, 72px);
+    font-weight:700; line-height:1.04; letter-spacing:-0.03em;
+    margin-bottom:24px;
+  }
+  h1 .grad{
+    background:linear-gradient(100deg, var(--ice-2), var(--frost-blue) 55%, var(--deep-blue));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero p{ font-size:18px; color:var(--text-muted); line-height:1.65; max-width:600px; margin:0 auto 38px; }
+  .hero-cta{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+  .btn-primary{
+    background:linear-gradient(100deg, var(--ice), var(--frost-blue));
+    color:#04121c; border:none; padding:15px 30px; border-radius:100px;
+    font-size:15px; font-weight:700; cursor:pointer;
+    box-shadow:0 0 28px rgba(126,233,255,0.3);
+    transition:transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 8px 32px rgba(126,233,255,0.45); }
+  .btn-ghost{
+    background:rgba(255,255,255,0.02); color:var(--text); border:1px solid var(--border);
+    padding:15px 30px; border-radius:100px; font-size:15px; font-weight:600; cursor:pointer;
+    transition:border-color 0.2s, background 0.2s;
+  }
+  .btn-ghost:hover{ border-color:var(--ice); background:rgba(126,233,255,0.05); }
+
+  .trust-row{
+    display:flex; justify-content:center; gap:40px; flex-wrap:wrap;
+    margin-top:60px; color:var(--text-muted); font-size:13px;
+  }
+  .trust-row b{ color:var(--text); font-size:22px; display:block; font-family:'Space Grotesk',sans-serif; margin-bottom:2px; }
+
+  /* frost crystal signature divider */
+  .crystal-divider{ display:flex; align-items:center; justify-content:center; gap:14px; margin:70px 0 10px; opacity:0.7; }
+  .crystal-divider .line{ height:1px; width:70px; background:linear-gradient(90deg, transparent, var(--border-hi), transparent); }
+  .crystal-divider svg{ width:22px; height:22px; opacity:0.8; }
+
+  /* ---------- Shop ---------- */
+  .shop{ padding:20px 6vw 100px; max-width:1260px; margin:0 auto; }
+  .shop-head{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:36px; flex-wrap:wrap; gap:16px; }
+  .shop-head h2{ font-family:'Space Grotesk',sans-serif; font-size:32px; font-weight:700; letter-spacing:-0.02em; }
+  .shop-head p{ color:var(--text-muted); font-size:15px; max-width:420px; }
+
+  .filters{ display:flex; gap:10px; margin-bottom:32px; flex-wrap:wrap; }
+  .filter-btn{
+    background:var(--card); border:1px solid var(--border); color:var(--text-muted);
+    padding:9px 18px; border-radius:100px; font-size:13px; font-weight:600; cursor:pointer;
+    transition:all 0.2s;
+  }
+  .filter-btn.active, .filter-btn:hover{ color:#fff; border-color:var(--ice); background:rgba(126,233,255,0.08); }
+
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:20px; }
+  .card{
+    background:linear-gradient(160deg, var(--card), var(--bg-2));
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:24px;
+    display:flex; flex-direction:column; gap:14px;
+    position:relative; overflow:hidden;
+    backdrop-filter:blur(6px);
+    transition:transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+  }
+  .card::before{
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(circle at top right, rgba(126,233,255,0.08), transparent 60%);
+    pointer-events:none;
+  }
+  .card::after{
+    content:''; position:absolute; top:0; left:0; right:0; height:1px;
+    background:linear-gradient(90deg, transparent, rgba(126,233,255,0.5), transparent);
+    opacity:0; transition:opacity 0.25s;
+  }
+  .card:hover{ transform:translateY(-4px); border-color:var(--border-hi); box-shadow:0 14px 40px rgba(0,0,0,0.35), 0 0 24px rgba(126,233,255,0.08); }
+  .card:hover::after{ opacity:1; }
+  .card-icon{
+    width:46px; height:46px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center; font-size:21px;
+    border:1px solid var(--border-hi);
+  }
+  .icon-ig{ background:linear-gradient(135deg, rgba(126,233,255,0.18), rgba(51,85,255,0.12)); }
+  .icon-tt{ background:linear-gradient(135deg, rgba(74,158,255,0.18), rgba(126,233,255,0.08)); }
+  .icon-kick{ background:linear-gradient(135deg, rgba(83,255,138,0.20), rgba(126,233,255,0.08)); }
+  .card-platform{ font-size:12px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted); }
+  .card-title{ font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:700; }
+  .card-desc{ font-size:13px; color:var(--text-muted); line-height:1.5; flex:1; }
+  .card-price-row{ display:flex; align-items:baseline; gap:8px; margin-top:4px; }
+  .card-price{ font-family:'JetBrains Mono', monospace; font-size:26px; font-weight:700; color:var(--success); }
+  .card-price sup{ font-size:13px; color:var(--text-muted); font-weight:500; }
+  .est-badge{ font-size:10px; color:#04121c; background:var(--ice); padding:2px 7px; border-radius:6px; font-weight:700; letter-spacing:0.03em; }
+  .pop-badge{
+    position:absolute; top:16px; right:16px;
+    font-size:10px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase;
+    color:var(--ice-2); border:1px solid rgba(126,233,255,0.35);
+    background:rgba(126,233,255,0.08); padding:4px 9px; border-radius:100px;
+  }
+  @keyframes cardIn{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:translateY(0); } }
+  .card{ animation:cardIn 0.5s ease both; }
+  .grid .card:nth-child(1){ animation-delay:0.02s; }
+  .grid .card:nth-child(2){ animation-delay:0.06s; }
+  .grid .card:nth-child(3){ animation-delay:0.10s; }
+  .grid .card:nth-child(4){ animation-delay:0.14s; }
+  .grid .card:nth-child(5){ animation-delay:0.18s; }
+  .grid .card:nth-child(6){ animation-delay:0.22s; }
+  .grid .card:nth-child(7){ animation-delay:0.26s; }
+  .grid .card:nth-child(8){ animation-delay:0.30s; }
+  .grid .card:nth-child(9){ animation-delay:0.34s; }
+  .grid .card:nth-child(10){ animation-delay:0.38s; }
+  .grid .card:nth-child(11){ animation-delay:0.42s; }
+  @media (prefers-reduced-motion: reduce){ .card{ animation:none !important; } }
+  .add-btn{
+    margin-top:6px; width:100%;
+    background:rgba(255,255,255,0.04); border:1px solid var(--border);
+    color:var(--text); padding:12px; border-radius:10px;
+    font-size:14px; font-weight:700; cursor:pointer;
+    transition:background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .add-btn:hover{ background:linear-gradient(100deg, var(--ice), var(--frost-blue)); color:#04121c; border-color:transparent; }
+
+  /* ---------- Footer ---------- */
+  footer{ border-top:1px solid var(--border); padding:44px 6vw; text-align:center; color:var(--text-muted); font-size:13px; }
+  footer .domain{ color:var(--ice); font-family:'JetBrains Mono',monospace; font-size:13px; margin-top:6px; }
+  footer .note{ max-width:600px; margin:16px auto 0; line-height:1.6; font-size:12px; color:#5a6c85; }
+
+  /* ---------- Cart drawer ---------- */
+  .overlay{ position:fixed; inset:0; background:rgba(2,5,10,0.65); backdrop-filter:blur(3px); z-index:30; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+  .overlay.show{ opacity:1; pointer-events:auto; }
+  .drawer{
+    position:fixed; top:0; right:0; height:100%; width:min(400px, 92vw);
+    background:var(--bg-2); border-left:1px solid var(--border);
+    z-index:31; transform:translateX(100%); transition:transform 0.35s cubic-bezier(.4,0,.2,1);
+    display:flex; flex-direction:column;
+  }
+  .drawer.show{ transform:translateX(0); }
+  .drawer-head{ padding:24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .drawer-head h3{ font-family:'Space Grotesk',sans-serif; font-size:20px; }
+  .close-btn{ background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer; line-height:1; }
+  .close-btn:hover{ color:var(--text); }
+  .drawer-items{ flex:1; overflow-y:auto; padding:16px 24px; display:flex; flex-direction:column; gap:14px; }
+  .empty-cart">Sepetin şu an boş.<br>Ürün ekleyerek başla ❄</div>';
+  .drawer-item{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px;
+  }
+  .di-title{ font-size:14px; font-weight:600; }
+  .di-price{ font-size:12px; color:var(--text-muted); font-family:'JetBrains Mono',monospace; }
+  .qty-ctrl{ display:flex; align-items:center; gap:8px; }
+  .qty-ctrl button{ width:26px; height:26px; border-radius:7px; border:1px solid var(--border); background:var(--bg-2); color:var(--text); cursor:pointer; font-size:14px; }
+  .remove-btn{ background:none; border:none; color:#ff7a90; font-size:12px; cursor:pointer; margin-left:8px; }
+  .drawer-foot{ padding:22px 24px; border-top:1px solid var(--border); }
+  .total-row{ display:flex; justify-content:space-between; margin-bottom:16px; font-size:15px; }
+  .total-row b{ font-family:'JetBrains Mono',monospace; color:var(--success); font-size:20px; }
+  .checkout-btn{
+    width:100%; padding:15px; border:none; border-radius:100px;
+    background:linear-gradient(100deg, var(--ice), var(--frost-blue));
+    color:#04121c; font-weight:700; font-size:15px; cursor:pointer;
+  }
+  .checkout-btn:disabled{ opacity:0.35; cursor:not-allowed; }
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed; bottom:26px; left:50%; transform:translate(-50%, 20px);
+    background:var(--card); border:1px solid var(--ice);
+    color:var(--text); padding:12px 22px; border-radius:100px;
+    font-size:14px; font-weight:600; z-index:40;
+    opacity:0; transition:all 0.3s;
+    box-shadow:0 0 22px rgba(126,233,255,0.3);
+  }
+  .toast.show{ opacity:1; transform:translate(-50%, 0); }
+
+  @media (max-width:640px){
+    nav a{ display:none; }
+    header{ padding:16px 5vw; }
+    .hero{ padding:74px 5vw 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="flow-bg">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+</div>
+<div class="particles" id="particles"></div>
+
+<div class="content">
+
+  <header>
+    <div class="logo">
+      <span class="logo-mark">❄</span>
+      Frost<span>Medya</span>
+    </div>
+    <nav>
+      <a href="#urunler">Ürünler</a>
+      <a href="#nasil">Nasıl Çalışır</a>
+      <a href="#footer">İletişim</a>
+    </nav>
+    <button class="cart-btn" onclick="openCart()">
+      🛒 Sepet <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">❄ Anlık teslimat · Türkiye'nin soğukkanlı paneli</div>
+    <h1>Hesabın <span class="grad">buz gibi</span> büyüsün.</h1>
+    <p>Instagram, TikTok ve Kick'te takipçi, beğeni, görüntülenme ve canlı yayın izleyicini dakikalar içinde büyüt. Seç, sepete at, sipariş ver — gerisini Frost'a bırak.</p>
+    <div class="hero-cta">
+      <button class="btn-primary" onclick="document.getElementById('urunler').scrollIntoView({behavior:'smooth'})">Ürünleri Gör</button>
+      <button class="btn-ghost" onclick="document.getElementById('nasil').scrollIntoView({behavior:'smooth'})">Nasıl Çalışır?</button>
+    </div>
+    <div class="trust-row">
+      <div><b>7/24</b>Sipariş Desteği</div>
+      <div><b>0–15dk</b>Ortalama Başlama Süresi</div>
+      <div><b>%100</b>Gizli & Güvenli</div>
+    </div>
+
+    <div class="crystal-divider">
+      <div class="line"></div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#7ee9ff" stroke-width="1.4">
+        <path d="M12 2v20M4 6l16 12M20 6L4 18M12 2l-2.5 3M12 2l2.5 3M12 22l-2.5-3M12 22l2.5-3"/>
+      </svg>
+      <div class="line"></div>
+    </div>
+  </section>
+
+  <section class="shop" id="urunler">
+    <div class="shop-head">
+      <div>
+        <h2>Mağaza</h2>
+        <p>İhtiyacın olan paketi seç, sepete ekle ve WhatsApp üzerinden siparişini tamamla.</p>
+      </div>
+    </div>
+
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">Tümü</button>
+      <button class="filter-btn" data-filter="ig">Instagram</button>
+      <button class="filter-btn" data-filter="tt">TikTok</button>
+      <button class="filter-btn" data-filter="kick">Kick</button>
+    </div>
+
+    <div class="grid" id="productGrid"></div>
+  </section>
+
+  <section class="shop" id="nasil">
+    <div class="shop-head">
+      <div>
+        <h2>Nasıl Çalışır?</h2>
+        <p>Üç adımda hesabın Frost'a girer.</p>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="card-icon icon-ig">1</div><div class="card-title">Paketini Seç</div><div class="card-desc">İstediğin platform ve miktarı belirle, sepete ekle.</div></div>
+      <div class="card"><div class="card-icon icon-tt">2</div><div class="card-title">Sipariş Ver</div><div class="card-desc">Sepetini onayla, WhatsApp üzerinden hesap bilgini ilet.</div></div>
+      <div class="card"><div class="card-icon icon-ig">3</div><div class="card-title">Akış Başlasın</div><div class="card-desc">Ödeme onayının ardından teslimat kısa sürede başlar.</div></div>
+    </div>
+  </section>
+
+  <footer id="footer">
+    <div class="logo" style="justify-content:center; display:inline-flex;">
+      <span class="logo-mark">❄</span>Frost<span>Medya</span>
+    </div>
+    <div class="domain">frostmedya.com.tr</div>
+    <p style="margin-top:12px;">© 2026 FrostMedya — Sosyal medyada büyümeni soğukkanlılıkla hızlandır.</p>
+    <p class="note">Bu sayfa bir demo/vitrin şablonudur; gerçek bir ödeme altyapısı içermez. Canlıya almadan önce lisanslı bir ödeme sağlayıcısı (iyzico, PayTR, Shopier vb.) ile entegre edilmesi ve ilgili platformların kullanım şartlarına uyulması gerekir.</p>
+  </footer>
+
+</div>
+
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3>Sepetin</h3>
+    <button class="close-btn" onclick="closeCart()">✕</button>
+  </div>
+  <div class="drawer-items" id="drawerItems"></div>
+  <div class="drawer-foot">
+    <div class="total-row"><span>Toplam</span><b id="totalPrice">0 TL</b></div>
+    <button class="checkout-btn" id="checkoutBtn" onclick="checkout()">Siparişi Tamamla</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const products = [
+    { id:'ig-takip-1000', platform:'ig', label:'Instagram', icon:'📸', iconClass:'icon-ig', title:'1000 Instagram Takipçi', desc:'Gerçek görünümlü, kademeli teslimat ile takipçi artışı.', price:100, est:false },
+    { id:'tt-takip-1000', platform:'tt', label:'TikTok', icon:'🎵', iconClass:'icon-tt', title:'1000 TikTok Takipçi', desc:'Kademeli teslimat ile TikTok takipçi artışı.', price:120, est:true },
+    { id:'ig-begeni-1000', platform:'ig', label:'Instagram', icon:'📸', iconClass:'icon-ig', title:'1000 Instagram Beğeni', desc:'Paylaşımlarına hızlı beğeni desteği.', price:100, est:false },
+    { id:'tt-begeni-1000', platform:'tt', label:'TikTok', icon:'🎵', iconClass:'icon-tt', title:'1000 TikTok Beğeni', desc:'Videolarına hızlı beğeni desteği.', price:150, est:false },
+    { id:'tt-goruntu-1000', platform:'tt', label:'TikTok', icon:'🎵', iconClass:'icon-tt', title:'1000 TikTok Görüntülenme', desc:'Video izlenme sayını hızlıca artır.', price:20, est:true },
+    { id:'tt-goruntu-10000', platform:'tt', label:'TikTok', icon:'🎵', iconClass:'icon-tt', title:'10.000 TikTok Görüntülenme', desc:'Yüksek hacimli video izlenme paketi.', price:200, est:false },
+    { id:'kick-izleyici-100', platform:'kick', label:'Kick', icon:'🟢', iconClass:'icon-kick', title:'100 Kick Yayın İzleyici', desc:'Canlı yayınına anlık izleyici desteği.', price:60, est:true },
+    { id:'kick-izleyici-200', platform:'kick', label:'Kick', icon:'🟢', iconClass:'icon-kick', title:'200 Kick Yayın İzleyici', desc:'Canlı yayınına anlık izleyici desteği.', price:110, est:true },
+    { id:'kick-izleyici-300', platform:'kick', label:'Kick', icon:'🟢', iconClass:'icon-kick', title:'300 Kick Yayın İzleyici', desc:'Canlı yayınına anlık izleyici desteği.', price:160, est:true },
+    { id:'kick-izleyici-400', platform:'kick', label:'Kick', icon:'🟢', iconClass:'icon-kick', title:'400 Kick Yayın İzleyici', desc:'Canlı yayınına anlık izleyici desteği.', price:205, est:true },
+    { id:'kick-izleyici-500', platform:'kick', label:'Kick', icon:'🟢', iconClass:'icon-kick', title:'500 Kick Yayın İzleyici', desc:'Canlı yayınına anlık izleyici desteği.', price:250, est:true },
+  ];
+
+  let cart = {};
+
+  function renderProducts(filter='all'){
+    const grid = document.getElementById('productGrid');
+    grid.innerHTML = '';
+    products.filter(p => filter==='all' || p.platform===filter).forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        ${(p.id==='ig-takip-1000' || p.id==='tt-begeni-1000') ? '<span class="pop-badge">Popüler</span>' : ''}
+        <div class="card-icon ${p.iconClass}">${p.icon}</div>
+        <div class="card-platform">${p.label}</div>
+        <div class="card-title">${p.title}</div>
+        <div class="card-desc">${p.desc}</div>
+        <div class="card-price-row">
+          <div class="card-price">${p.price}<sup>TL</sup></div>
+          ${p.est ? '<span class="est-badge">TAHMİNİ</span>' : ''}
+        </div>
+        <button class="add-btn" onclick="addToCart('${p.id}')">Sepete Ekle</button>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function addToCart(id){
+    cart[id] = (cart[id] || 0) + 1;
+    updateCartUI();
+    showToast('Sepete eklendi ✓');
+  }
+  function changeQty(id, delta){
+    cart[id] = (cart[id] || 0) + delta;
+    if(cart[id] <= 0) delete cart[id];
+    updateCartUI();
+  }
+  function removeItem(id){
+    delete cart[id];
+    updateCartUI();
+  }
+
+  function updateCartUI(){
+    const count = Object.values(cart).reduce((a,b)=>a+b,0);
+    document.getElementById('cartCount').textContent = count;
+
+    const itemsEl = document.getElementById('drawerItems');
+    itemsEl.innerHTML = '';
+    let total = 0;
+
+    if(count === 0){
+      itemsEl.innerHTML = '<div class="empty-cart">Sepetin şu an boş.<br>Ürün ekleyerek başla ❄</div>';
+    } else {
+      Object.entries(cart).forEach(([id, qty]) => {
+        const p = products.find(x => x.id === id);
+        const lineTotal = p.price * qty;
+        total += lineTotal;
+        const row = document.createElement('div');
+        row.className = 'drawer-item';
+        row.innerHTML = `
+          <div>
+            <div class="di-title">${p.title}</div>
+            <div class="di-price">${p.price} TL x ${qty} = ${lineTotal} TL</div>
+          </div>
+          <div class="qty-ctrl">
+            <button onclick="changeQty('${id}', -1)">-</button>
+            <span>${qty}</span>
+            <button onclick="changeQty('${id}', 1)">+</button>
+            <button class="remove-btn" onclick="removeItem('${id}')">Sil</button>
+          </div>
+        `;
+        itemsEl.appendChild(row);
+      });
+    }
+    document.getElementById('totalPrice').textContent = total + ' TL';
+    document.getElementById('checkoutBtn').disabled = count === 0;
+  }
+
+  function openCart(){
+    document.getElementById('drawer').classList.add('show');
+    document.getElementById('overlay').classList.add('show');
+  }
+  function closeCart(){
+    document.getElementById('drawer').classList.remove('show');
+    document.getElementById('overlay').classList.remove('show');
+  }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=> t.classList.remove('show'), 1800);
+  }
+
+  function checkout(){
+    const lines = Object.entries(cart).map(([id, qty]) => {
+      const p = products.find(x => x.id === id);
+      return `${p.title} x${qty} = ${p.price*qty}TL`;
+    });
+    const total = Object.entries(cart).reduce((sum,[id,qty]) => {
+      const p = products.find(x => x.id === id);
+      return sum + p.price*qty;
+    }, 0);
+    const message = encodeURIComponent(`Merhaba, Frost Medya üzerinden sipariş vermek istiyorum:\n${lines.join('\n')}\nToplam: ${total} TL`);
+    window.open(`https://wa.me/905316618975?text=${message}`, '_blank');
+  }
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderProducts(btn.dataset.filter);
+    });
+  });
+
+  function initParticles(){
+    const container = document.getElementById('particles');
+    const count = window.innerWidth < 640 ? 14 : 26;
+    for(let i=0; i<count; i++){
+      const el = document.createElement('div');
+      el.className = 'flake';
+      const size = Math.random()*3 + 1.5;
+      el.style.width = size+'px';
+      el.style.height = size+'px';
+      el.style.left = Math.random()*100 + 'vw';
+      el.style.animationDuration = (Math.random()*18 + 14) + 's';
+      el.style.animationDelay = (Math.random()*-20) + 's';
+      container.appendChild(el);
+    }
+  }
+
+  renderProducts();
+  updateCartUI();
+  initParticles();
+</script>
+
+</body>
+</html>
